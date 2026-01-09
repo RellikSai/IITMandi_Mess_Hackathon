@@ -41,12 +41,8 @@ This module helps mess administrators predict the number of students likely to a
 A gamified system that motivates hostels to actively reduce food waste by turning sustainability into a friendly competition.
 
 **How It Works:**
-- Weekly food waste data is tracked per hostel
-- Hostels are assigned levels:
-  - 🥉 Bronze  
-  - 🥈 Silver  
-  - 🥇 Gold  
-  - 💎 Diamond  
+- Daily food waste data is tracked per mess
+- Mess are assigned badges (prestigious positions-like)
 - Visual progress indicators and leaderboard-style comparisons
 
 **Behavioral Nudges:**
@@ -79,34 +75,11 @@ A centralized system for managing campus complaints efficiently.
 
 ---
 
-## 🚀 Planned Future Enhancements
-
-### 🔍 Explainable AI for Predictions
-- Clear reasoning behind food demand predictions
-- Example insights:
-  - “Exam week increases attendance”
-  - “Rainy weather reduces turnout”
-- Builds transparency and trust for administrators
-
-### 🔮 What-If Scenario Simulation
-- Simulate changes like:
-  - Exam schedules
-  - Holidays
-  - Special events
-- Instantly visualize how predictions change
-
-### ⚠️ Advanced Complaint Prioritization
-- AI-based severity scoring
-- Auto-flagging critical issues
-- Resolution-time prediction for better planning
-
----
-
 ## 🧰 Tech Stack
 
 - **Frontend:** Streamlit  
 - **Backend / ML:** Python, Scikit-learn  
-- **Models Used:** Vertex AI and many more Algorithms 
+- **Models Used:** Vertex AI, RandomForest and many more Algorithms 
 - **Data Handling:** Pandas, NumPy  
 - **Visualization:** Matplotlib, Seaborn, Streamlit Charts  
 
