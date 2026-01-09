@@ -3,6 +3,7 @@ import streamlit as st
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
+import pandas as pd
 
 st.set_page_config(
     page_title="Smart Campus AI | IIT Mandi",
@@ -324,130 +325,165 @@ if role == "Staff":
                             """,
                             unsafe_allow_html=True
                         )
-
-# ---------- SECTION 1B (EMPTY / RESERVED) ----------
 with tab2:
     st.markdown(
-        "<div class='glow-blue'><h2 style='color:#00bfff;'><U>WasteLess League</U> : <I><U>Save smarter</U> <U>and</U> <U>Level higher</u></I></h2></div>",
-        unsafe_allow_html=True
-    )
-    st.write("")
-
-    st.write(
-        "AI monitors **post-serving food waste**, compares it with historical trends, "
-        "and gamifies reduction to encourage sustainable behavior."
-    )
-
-    # ------------------ SESSION DATA ------------------
-    if "waste_history" not in st.session_state:
-        st.session_state.waste_history = [
-            {"week": "Week 1", "waste": 42},
-            {"week": "Week 2", "waste": 38},
-            {"week": "Week 3", "waste": 34}
-        ]
-
-
-    # ------------------ AI LOGIC ------------------
-    def get_level(waste):
-        if waste <= 20:
-            return "Diamond 🟢"
-        elif waste <= 30:
-            return "Gold 🟡"
-        elif waste <= 40:
-            return "Silver ⚪"
-        else:
-            return "Bronze 🔴"
-
-
-    def level_trend(curr, prev):
-        if curr < prev:
-            return "⬆ Level Up"
-        elif curr > prev:
-            return "⬇ Level Down"
-        else:
-            return "⏸ No Change"
-
-
-    latest = st.session_state.waste_history[-1]
-    prev = st.session_state.waste_history[-2] if len(st.session_state.waste_history) > 1 else latest
-
-    current_level = get_level(latest["waste"])
-    trend = level_trend(latest["waste"], prev["waste"])
-
-    # ------------------ DASHBOARD ------------------
-    col1, col2, col3 = st.columns(3)
-
-    col1.metric("Food Wasted This Week", f"{latest['waste']} kg")
-    col2.metric("Current Level", current_level)
-    col3.metric("Weekly Trend", trend)
-
-    progress = max(0, min(100, int((40 - latest["waste"]) * 2.5)))
-    st.progress(progress)
-
-    st.caption("AI Confidence: 87% (based on historical consistency)")
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # ------------------ GAME MODE ------------------
-    if st.button("🎮 Rules and LeaderBoard"):
-        st.markdown("---")
-
-        st.markdown(
-            "<h3 style='color:#00ff99;font-family:Trebuchet MS;'>🏆 WasteLess League — Rules</h3>",
+            "<div class='glow-blue'><h2 style='color:#00bfff;'><U>WasteLess League</U> : <I><U>Save smarter</U> <U>and</U> <U>Level higher</u></I></h2></div>",
             unsafe_allow_html=True
         )
+    st.write("")
 
-        st.markdown("""
-        <ul style="color:#ffd700;">
-        <li>Each hostel competes weekly to <b>reduce food waste</b></li>
-        <li>Waste decreases from last week → <b>Level increases</b></li>
-        <li>Waste increases from last week → <b>Level decreases</b></li>
-        <li>Levels unlocks recognition & incentives</li>
-        <li>AI recalculates rankings every week</li>
-        </ul>
-        """, unsafe_allow_html=True)
+    if "history" not in st.session_state:
+        st.session_state.history = []
 
-        st.write("")
+    if "leaderboard" not in st.session_state:
+        st.session_state.leaderboard = {
+            "Alder Mess": 0,
+            "Oak Mess": 0,
+            "Peepal Mess": 0,
+            "Pine Mess": 0,
+            "Tulsi Mess": 0
+        }
+    if role == "Staff":
+        # Mess Selection
+        st.subheader("🏫 Select Mess")
+        mess = st.radio(
+            "Which Mess are you representing?",
+            ["Alder Mess", "Oak Mess", "Peepal Mess", "Pine Mess", "Tulsi Mess"],
+            horizontal=True
+        )
 
-        # ------------------ LEADERBOARD ------------------
-        st.subheader("📊 Weekly Leaderboard")
+        # Food Input Section
+        st.subheader("🥗 Track Today's Food Waste")
 
-        leaderboard = []
-        for i, w in enumerate(st.session_state.waste_history):
-            prev_waste = st.session_state.waste_history[i - 1]["waste"] if i > 0 else w["waste"]
-            leaderboard.append({
-                "Week": w["week"],
-                "Food Wasted (kg)": w["waste"],
-                "Level": get_level(w["waste"]),
-                "Change": level_trend(w["waste"], prev_waste)
+        colA, colB = st.columns(2)
+
+        with colA:
+            taken_slider = st.slider("Meals Taken (approx.)", 0, 1000, 300)
+            taken_input = st.number_input("Or Enter Exact Meals Taken", min_value=0, value=taken_slider)
+            meals_taken = taken_input if taken_input != taken_slider else taken_slider
+
+        with colB:
+            wasted_slider = st.slider("Meals Wasted (approx.)", 0, taken_input, 50)
+            wasted_input = st.number_input("Or Enter Exact Meals Wasted", min_value=0, value=wasted_slider)
+            meals_wasted = wasted_input if wasted_input != wasted_slider else wasted_slider# Calculations
+        efficiency = 0 if meals_taken == 0 else max(0, 100 - ((meals_wasted / meals_taken) * 100))
+        points = int(efficiency)
+
+        # Display Performance
+        st.markdown(f"""
+        **Efficiency Score:** `{efficiency:.2f}%`  
+        **Points Earned:** `{points}`
+        """)
+
+        # Submit Button
+        if st.button("Submit Score"):
+
+            # Ensure leaderboard entry exists
+            if mess not in st.session_state.leaderboard:
+                st.session_state.leaderboard[mess] = 0
+
+            st.session_state.leaderboard[mess] += points
+
+            st.session_state.history.append({
+                "Mess": mess,
+                "Taken": meals_taken,
+                "Wasted": meals_wasted,
+                "Efficiency %": round(efficiency, 2),
+                "Points": points
             })
 
-        st.dataframe(leaderboard, use_container_width=True)
+            st.success(f"Score submitted for {mess}! 🎉")
 
-        # ------------------ NEXT LEVEL TARGET ------------------
-        target = max(latest["waste"] - 5, 0)
+    # Nudges
+    st.caption("💡 Taking only what you eat maximizes efficiency — waste less to dominate the leaderboard!")
 
+    # Leaderboard Display
+    # 🏆 Styled Leaderboard Display
+    st.subheader("🏆 Current Leaderboard")
+
+    sorted_board = sorted(st.session_state.leaderboard.items(), key=lambda x: x[1], reverse=True)
+
+    # Custom CSS for glowing leaderboard cards
+    st.markdown("""
+    <style>
+    .leader-card {
+        border: 2px solid rgba(0,255,0,0.8);
+        padding: 10px 18px;
+        border-radius: 10px;
+        margin-bottom: 8px;
+        background: rgba(0, 0, 0, 0.65);
+        color: #ccffcc;
+        font-size: 18px;
+        font-weight: 600;
+        text-shadow: 0 0 6px #00ff55;
+        display: flex;
+        justify-content: space-between;
+    }
+    .rank-box {
+        font-size: 20px;
+        font-weight: 800;
+        color: gold;
+        margin-right: 12px;
+        text-shadow: 0 0 8px gold;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    for rank, (m, p) in enumerate(sorted_board, 1):
         st.markdown(
             f"""
-            <div style="
-                border:2px solid #00bfff;
-                box-shadow:0 0 15px #00bfff;
-                padding:20px;
-                border-radius:14px;
-                margin-top:20px;
-            ">
-            <h4 style='color:#00bfff;'>🎯 A Few CheatCodes To Increase Present Level 🎯</h4>
-            <h5 style='color:yellow;'>
-            🚀 Reduce waste by <b><u>{latest['waste'] - target} kg</b></u> next week to surpass your competitor hostel on the leaderboard 🚀
-            </h5>
-            <p>🔥 Full plate ≠ full points. 🔥 Clean plate = victory for your hostel. 🔥</p>
-            <p>🏆 Take what you need, finish it, and secure the win. 🏆</p>
+            <div class="leader-card">
+                <div class="rank-box">#{rank}</div>
+                <div>{m}</div>
+                <div><b>{p} pts</b></div>
             </div>
             """,
             unsafe_allow_html=True
         )
+    st.write(" ")
 
-    st.write("")
+    # Match History
+    st.subheader("📜 Input History")
+    if len(st.session_state.history) > 0:
+        df = pd.DataFrame(st.session_state.history)
+        st.dataframe(df, use_container_width=True)
+    else:
+        st.caption("No match history yet — start playing!")
+
+    st.markdown("---")
+    st.subheader("🎯 Game Insights")
+
+    # Sustainability nudges
+    st.markdown("""
+            💬 **Strategic Tips to Win:**
+            - Serve smaller portions first
+            - Take seconds only if needed
+            - Avoid wasting carbs (they score higher penalties)
+            - Push for Zero Waste streaks to earn bonus points 🎖️
+        """)
+
+    # Motivational random nudge
+    import random
+    nudges = [
+            "Small servings = Big wins!",
+            "Waste less. Score more!",
+            "Your plate decides your mess' fate!",
+            "Nature approves your clean plate 🌱",
+            "Zero waste streak coming ???",
+            "Other hostels are watching your position too👀"
+    ]
+    st.markdown(f"🧩 **Not a Nudge (just saying):**  _{random.choice(nudges)}_")
+
+    # End-of-view badge suggestions
+    st.markdown("""
+        <div style='margin-top:15px; padding:10px; border-radius:10px; background:#111;'>
+        🏅 <b>Upcoming Badges</b> <br>
+        - Zero Waste Hero<br>
+        - Plate Master<br>
+        - Eco Elite<br>
+        - Hostel Guardian
+        </div>
+    """, unsafe_allow_html=True)
 
 # ------------------ SECTION 2 ------------------
 with tab3:
