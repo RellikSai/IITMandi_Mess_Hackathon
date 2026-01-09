@@ -2,6 +2,8 @@
 
 **Smart Campus AI** is an integrated, AI-powered campus intelligence platform designed to enhance **food sustainability**, **hostel operations**, and **student experience** within a university environment.  
 Built using **Streamlit** and **Machine Learning**, the platform showcases how data-driven decision-making can reduce food waste, improve administrative efficiency, and encourage responsible student behavior through **gamification**.
+It is already deployed in web and do check it out, do give me a review or a star to this if you want to appreciate my work,
+https://relliksai-iitmandi-mess-hackathon-app-eutggw.streamlit.app/
 
 ---
 
