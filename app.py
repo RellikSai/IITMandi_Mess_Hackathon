@@ -1,4 +1,3 @@
-# ---------- IMPORTS ----------
 import streamlit as st
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
@@ -618,3 +617,4 @@ st.markdown(
     "<p style='text-align:center;color:#777;margin-top:40px;'>Powered by Google AI • Built for Sustainable Campus Living • Designed by SaiPrasanth </p>",
     unsafe_allow_html=True
 )
+
